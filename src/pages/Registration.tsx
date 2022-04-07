@@ -50,7 +50,7 @@ function Registration() {
       
 
       const submitForm = async (data:any) => {
-        console.log("data : ",data);
+        //console.log("data : ",data);
         const user = {
           username: data.username,
           email: data.email,
@@ -59,7 +59,7 @@ function Registration() {
         }
         try {
             const res = await publicRequest.post("/auth/register", user);
-            console.log("line no : 62 response status : " + res.data)
+            //console.log("line no : 62 response status : " + res.data)
             if(res.statusText === 'Created'){
                 setButtonPopup(true)
             }else {

@@ -24,7 +24,7 @@ type PublishedFullscreenNewsProps = {
 const PublishedFullScreen = ({ setShowNavbar}: PublishedFullscreenNewsProps) => {
    
     const { id } = useParams()
-    const shareUrl = `http://www.localhost:7700/fullscreen/${id}`
+    const shareUrl = `https://bolt-news-app.herokuapp.com/${id}`
  
     useEffect(()=>{
         setShowNavbar(false)

@@ -49,7 +49,7 @@ import {
   
   const FullScreen = () => {
     const { id } = useParams();
-    const shareUrl = `http://www.localhost:7000/fullscreen/${id}`;
+    const shareUrl = `https://bolt-news-app.herokuapp.com/fullscreen/${id}`;
   
     useEffect(() => {
       publicRequest.get("/news/" + id).then((response) => {

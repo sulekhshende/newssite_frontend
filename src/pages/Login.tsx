@@ -47,7 +47,7 @@ function Login(){
 
   const submitForm = (data:any) => {
     
-    console.log("data on line no 50 in Login.tsx: ",data);
+    //console.log("data on line no 50 in Login.tsx: ",data);
     const user = {
       username: data.username,
       password: data.password
