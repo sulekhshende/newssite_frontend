@@ -9,6 +9,7 @@ import Box from '@mui/material/Box/Box'
 import Button from '@mui/material/Button'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const styles = {
     card: {
@@ -56,22 +57,27 @@ const ScrollCard = ({ news }: { news: NewsType }) => {
     var information1 = information.slice(0, 200);
     var information2 = information.slice(201,300);
     const [readmore, setReadmore] = useState(false);
+    const navigate = useNavigate();
     const handleReadmore = () => {
         setReadmore(!readmore);
     }
     //readmore end
 
+    function handleClick(id:number){
+        navigate('/fullscreen/'+id)
+    }
+
     return (
 
         <Card sx={styles.card} className="camponent">
-            <CardContent >
+            <CardContent onClick={()=>handleClick(id)}>
                 
                 <Grid container>
 
                     <Grid item xs={12} sm={5} md={5} lg={5} sx={styles.grid1}>
 
                           {/* =============> */}
-                       <Box sx={{textDecoration:"none"}} component={Link} to={`/fullscreen/${id}`}>
+                       <Box sx={{textDecoration:"none"}} >
                        <CardMedia
                             component="img"
                             alt="image"
@@ -97,7 +103,7 @@ const ScrollCard = ({ news }: { news: NewsType }) => {
                         <Typography><b>"Hello"</b> / {updatedAt}</Typography>
 
                         {readmore ? <Typography>{information1}</Typography> : <Typography>{information2}</Typography>}
-                        <Button onClick={handleReadmore}>{readmore ? "Read less" : "Read more..."}</Button>
+                        <Button onClick={handleReadmore}>{readmore ? "Tap the image to read full news" : "Read more..."}</Button>
 
                     </Grid>
 
