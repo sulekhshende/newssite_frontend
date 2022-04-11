@@ -35,7 +35,7 @@ import { loginUser } from "../redux/apiCalls";
   
 
 function Login(){
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -53,7 +53,7 @@ function Login(){
       password: data.password
     }
     loginUser(dispatch, user);
-    window.location.assign('/addnews');
+    navigate('/addnews');
   };
 
 
