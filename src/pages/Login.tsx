@@ -53,7 +53,7 @@ function Login(){
       password: data.password
     }
     loginUser(dispatch, user);
-    window.location.replace('https://main.d3yu0pkoq0x5s.amplifyapp.com/addnews');
+    window.location.assign('/addnews');
   };
 
 
