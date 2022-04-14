@@ -52,8 +52,11 @@ function Login(){
       username: data.username,
       password: data.password
     }
-    loginUser(dispatch, user);
-    navigate('/addnews');
+    loginUser(dispatch, user).then(() => {
+      navigate('/addnews');
+      window.location.reload();
+    });
+    
   };
 
 
