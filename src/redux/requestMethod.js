@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const Base_Url = "https://bolt-news-app.herokuapp.com/api";
+const Base_Url = "http://ec2-13-126-199-108.ap-south-1.compute.amazonaws.com:7700/api";
 const user = JSON.parse(localStorage.getItem("persist:root"))?.currentUser;
 const currentUser = user && JSON.stringify(user);
 
