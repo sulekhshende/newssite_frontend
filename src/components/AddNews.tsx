@@ -215,7 +215,7 @@ export default function AddNews({  setShowNavbar }: AddNewsProps) {
         let bodys: any[] = []
 
         values.tags.forEach((tag)=>{
-            let url = 'https://bolt-news-app.herokuapp.com/api/news_tags/'
+            let url = 'https://ec2-3-109-255-100.ap-south-1.compute.amazonaws.com:7700/api/news_tags/'
             endpoints.push(url)
             let body = {
                 news_id : news_id,
