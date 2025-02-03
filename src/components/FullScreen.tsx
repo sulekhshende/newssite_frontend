@@ -49,7 +49,7 @@ import {
   
   const FullScreen = () => {
     const { id } = useParams();
-    const shareUrl = `http://ec2-13-126-199-108.ap-south-1.compute.amazonaws.com:7700/fullscreen/${id}`;
+    const shareUrl = `https://ec2-3-109-255-100.ap-south-1.compute.amazonaws.com:7700/fullscreen/${id}`;
   
     useEffect(() => {
       publicRequest.get("/news/" + id).then((response) => {
