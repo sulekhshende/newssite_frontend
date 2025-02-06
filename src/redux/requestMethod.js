@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const Base_Url = "https://ec2-3-109-255-100.ap-south-1.compute.amazonaws.com:7700/api";
+const Base_Url = "http://ec2-3-109-255-100:7700/api";
 const user = JSON.parse(localStorage.getItem("persist:root"))?.currentUser;
 const currentUser = user && JSON.stringify(user);
 
