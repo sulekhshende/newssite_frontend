@@ -64,5 +64,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://ec2-3-109-255-100:7700/api"
+  "proxy": "https://boltnews365.zapto.org/api"
 }
