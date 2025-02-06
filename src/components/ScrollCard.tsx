@@ -100,7 +100,7 @@ const ScrollCard = ({ news }: { news: NewsType }) => {
                         {/* title */}
                         <Typography variant='h6' className="titleMain" sx={styles.titleMain}>{title}</Typography>
                         {/* category */}
-                        <Typography><b>"Hello"</b> / {updatedAt}</Typography>
+                        <Typography><b>Time Written At: </b>{updatedAt}</Typography>
 
                         {readmore ? <Typography>{information1}</Typography> : <Typography>{information2}</Typography>}
                         <Button onClick={handleReadmore}>{readmore ? "Tap the image to read full news" : "Read more..."}</Button>
