@@ -215,7 +215,7 @@ export default function AddNews({  setShowNavbar }: AddNewsProps) {
         let bodys: any[] = []
 
         values.tags.forEach((tag)=>{
-            let url = 'http://ec2-3-109-255-100:7700/api/news_tags/'
+            let url = 'https://boltnews365.zapto.org/api/news_tags/'
             endpoints.push(url)
             let body = {
                 news_id : news_id,
