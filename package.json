@@ -64,5 +64,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://ec2-3-109-255-100.ap-south-1.compute.amazonaws.com:7700/api"
+  "proxy": "http://ec2-3-109-255-100:7700/api"
 }
