@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main  # Change if your production branch is different
+      - main
 
 jobs:
   deploy:
@@ -16,13 +16,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # Change to your Node.js version
+          node-version: 18  
 
       - name: Install Dependencies
         run: npm install
 
       - name: Build Project
-        run: npm run build  # Change if your build command is different
+        run: npm run build
 
       - name: Deploy to AWS S3
         env:
