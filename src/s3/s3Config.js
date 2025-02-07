@@ -1,12 +1,12 @@
 import AWS from 'aws-sdk';
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, 
-  region: process.env.AWS_REGION
+// Configure AWS SDK using environment variables from GitHub Actions
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
 });
 
-const s3 = new AWS.S3();
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 
 export const uploadFileToS3 = async (file) => {
@@ -14,7 +14,7 @@ export const uploadFileToS3 = async (file) => {
     Bucket: BUCKET_NAME,
     Key: `uploads/${Date.now()}_${file.name}`,
     Body: file,
-    ContentType: file.type
+    ContentType: file.type,
   };
 
   try {
