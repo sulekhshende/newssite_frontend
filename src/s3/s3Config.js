@@ -1,14 +1,13 @@
 import AWS from 'aws-sdk';
 
-// Configure AWS SDK using environment variables
 AWS.config.update({
-  accessKeyId: "AKIAWC4MDWITNOHIDTUT",
-  secretAccessKey: "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",
-  region: "ap-south-1"
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID, 
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, 
+  region: process.env.AWS_REGION
 });
 
 const s3 = new AWS.S3();
-const BUCKET_NAME = "newswebsite-uploads";
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 
 export const uploadFileToS3 = async (file) => {
   const params = {
