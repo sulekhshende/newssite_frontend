@@ -370,7 +370,8 @@ import { checkFiles } from "../Validation/ValidateFiles";
 import FileSelected from "./FileSelected";
 import { userRequest } from './../redux/requestMethod';
 import { useAppSelector } from "../redux/reduxHooks";
-import { uploadFileToS3 } from "../s3Config"; // AWS S3 Upload Function
+//import { uploadFileToS3 } from "../s3Config"; // AWS S3 Upload Function
+import {uploadFileToS3} from '../s3/s3Config';
 import { useNavigate } from 'react-router';
 
 const Input = styled('input')({
