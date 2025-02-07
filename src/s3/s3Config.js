@@ -2,13 +2,13 @@ import AWS from 'aws-sdk';
 
 // Configure AWS SDK
 AWS.config.update({
-  accessKeyId: "YOUR_ACCESS_KEY",
-  secretAccessKey: "YOUR_SECRET_KEY",
-  region: "YOUR_AWS_REGION"
+  accessKeyId: "",
+  secretAccessKey: "",
+  region: "ap-south-1"
 });
 
 const s3 = new AWS.S3();
-const BUCKET_NAME = "YOUR_S3_BUCKET_NAME";
+const BUCKET_NAME = "newswebsite-uploads";
 
 export const uploadFileToS3 = async (file: File): Promise<string> => {
   const params = {
