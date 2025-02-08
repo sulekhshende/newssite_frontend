@@ -43,21 +43,27 @@ jobs:
         run: |
           CI=false npm run build
 
-      # ✅ Step 6: Configure AWS Credentials (Official GitHub Action)
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      # ✅ Step 7: Verify AWS Credentials (Debugging Step)
-      - name: Debug AWS Credentials
+      # ✅ Step 6: Manually Configure AWS Credentials
+      - name: Manually Configure AWS Credentials
         run: |
-          echo "Testing AWS credentials..."
-          aws sts get-caller-identity
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "[default]" > ~/.aws/config
+          echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
+          cat ~/.aws/credentials  # Debugging: Print credentials (check if they're set)
         env:
           AWS_SDK_LOAD_CONFIG: 1  # Ensures SDK loads credentials
+
+      # ✅ Step 7: Debug AWS Credentials (Verify If They Are Loaded)
+      - name: Verify AWS Credentials
+        run: |
+          echo "Checking AWS credentials..."
+          aws sts get-caller-identity
+          aws configure list
+        env:
+          AWS_SDK_LOAD_CONFIG: 1
 
       # ✅ Step 8: Deploy Build to AWS S3
       - name: Deploy to AWS S3
