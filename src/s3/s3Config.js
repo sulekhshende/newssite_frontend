@@ -9,6 +9,10 @@ const s3 = new AWS.S3({
 
 const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
 
+if (!BUCKET_NAME) {
+  throw new Error("AWS_BUCKET_NAME is not defined!");
+}
+
 export const uploadFileToS3 = async (file) => {
   const params = {
     Bucket: BUCKET_NAME,
