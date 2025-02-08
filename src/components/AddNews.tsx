@@ -373,6 +373,8 @@ import { useAppSelector } from "../redux/reduxHooks";
 //import { uploadFileToS3 } from "../s3Config"; // AWS S3 Upload Function
 import {uploadFileToS3} from '../s3/s3Config';
 import { useNavigate } from 'react-router';
+import LocationSelect from "./LocationSelect";
+import CategorySelect from "./CategorySelect";
 
 const Input = styled('input')({
   display: 'none',
@@ -543,24 +545,106 @@ export default function AddNews({ setShowNavbar }: AddNewsProps) {
   }
 
   return (
+
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <FormControl fullWidth sx={{ m: 1 }}>
-            <InputLabel htmlFor="outlined-adornment-Title">Title</InputLabel>
-            <OutlinedInput id="outlined-adornment-Title" value={values.title} onChange={handleChange('title')} label="Title" />
-          </FormControl>
-          <FormControl fullWidth sx={{ m: 1 }}>
-            <TextField label="Brief" multiline rows={10} value={values.brief} onChange={handleChange('brief')} />
-          </FormControl>
+        <Grid container spacing={2}>
+            <Grid item xs={2}>
+            </Grid>
+            <Grid item xs={8}>
+                <FormControl fullWidth = {true} sx={{ m: 1 }}>
+                <InputLabel htmlFor="outlined-adornment-Title">Title</InputLabel>
+                <OutlinedInput
+                    id="outlined-adornment-Title"
+                    value={values.title}
+                    onChange={handleChange('title')}
+                    label="Title"
+                />
+                </FormControl>
+                <FormControl fullWidth = {true} sx={{ m: 1 }}>
+                <TextField
+                id="outlined-multiline-static"
+                label="Brief"
+                multiline
+                rows={10}
+                placeholder="enter news brief in 200 words only"
+                value={values.brief}
+                onChange={handleChange('brief')}
+                />
+                </FormControl>
+                
+                <FormControl  sx={{ m: 1 }}>
+                <Typography sx={{fontSize: 13 }} component="h5">select image</Typography>
+                <label htmlFor="contained-button-file" >
+                    <Input accept=".png, .jpg, .jpeg" id="contained-button-file" multiple type="file" required onChange={handleChange('image')} />
+                    <Button variant="contained" component="span">
+                     Image
+                    </Button>
+                </label>                 
+                </FormControl>
+                <FormControl  sx={{ m: 1 }}>
+                <Typography sx={{fontSize: 13 }} component="h5">select video (optional)</Typography>
+                <label htmlFor="contained-button-file" >
+                    <Input accept="video/*" id="contained-button-file" multiple type="file" onChange={handleChange('video')} />
+                    <Button variant="contained" component="span">
+                     Video
+                    </Button>
+                </label>
+                </FormControl>
+                {
+                    file.length === 0 ?  ""  :  (<FormControl  sx={{ m: 1 }}>
+                        <Typography sx={  { fontSize: 13, textAlign: "center", color: checkFiles(file)? "black" : "red" }} component="h5">
+                            {
+                                checkFiles(file) ? "selected files" : "one image required or one video ( video optional)"
+                            }
+                        </Typography>
+                        <FileSelected files={file} setFiles={setFiles}/>
+                    </FormControl>)
+                }
+                <Grid item xs={12}>
+                    <FormControl  sx={{ m: 1 }}>
+                        <Typography sx={{fontSize: 13 }} component="h5">upload progress: </Typography>
+                            <progress value={progress} max="100"/>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                        <Grid item md={3} xs={12}>
+                            <FormControl sx={{ m: 1 }}>
+                                <LocationSelect values={values} setValues = {setValues}  clearValue={clearValue}/>
+                            </FormControl> 
+                        </Grid>
+                        <Grid item md={9} xs={12}>   
+                            <FormControl sx={{ m: 1 }}>
+                                <CategorySelect values={values} setValues = {setValues} clearValue={clearValue}/> 
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={8}>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <FormControl sx={{ m: 1 }}>
+                                <ChipsArray categoryId={values.category} values={values} setValues={setValues}/>
+                            </FormControl> 
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
+            
+                      
+        </Grid>
+        
         <Grid item xs={12}>
-          <Box textAlign='center'>
-            <Button variant="outlined" onClick={handleSubmit}>Submit</Button>
-          </Box>
+        <Box textAlign='center'>
+            <Button  variant="outlined" onClick={handleSubmit}>Submit</Button>
+        </Box>
         </Grid>
+        
       </Grid>
-    </Box>
+    </Box>  
   );
 }
 
