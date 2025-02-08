@@ -21,8 +21,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Manually Install AWS SDK
-        run: npm install @aws-sdk/client-s3
+      - name: Install AWS SDK (v2)
+        run: npm install aws-sdk
+
 
       - name: Build Project
         run: CI=false npm run build  # Disables CI warnings during build
