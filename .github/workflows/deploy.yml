@@ -21,10 +21,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install AWS SDK (v2)
+      - name: Install AWS SDK
         run: npm install aws-sdk
 
-      # ✅ Debug Step 1: Check if AWS secrets are available
+      # ✅ Debugging Step 1: Ensure AWS Secrets are Available
       - name: Debug AWS Secrets
         run: |
           echo "Checking AWS Secrets..."
@@ -33,7 +33,16 @@ jobs:
           echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
           echo "AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}"
 
-      # ✅ Ensure AWS CLI is installed & updated if needed
+      # ✅ Debugging Step 2: Test AWS Credentials
+      - name: Test AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_SDK_LOAD_CONFIG: 1  # ✅ Ensures AWS SDK loads credentials correctly
+        run: aws sts get-caller-identity
+
+      # ✅ Ensure AWS CLI is installed
       - name: Check AWS CLI Version
         run: aws --version || echo "AWS CLI not found"
 
@@ -48,8 +57,8 @@ jobs:
             echo "AWS CLI is already installed"
           fi
 
-      # ✅ Force AWS Credentials to be used
-      - name: Force AWS Credentials
+      # ✅ Manually Configure AWS Credentials
+      - name: Configure AWS Credentials
         run: |
           mkdir -p ~/.aws
           echo "[default]" > ~/.aws/credentials
@@ -58,25 +67,35 @@ jobs:
           echo "[default]" > ~/.aws/config
           echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
 
-      # ✅ Set Environment Variables for React Build
+      # ✅ Inject AWS Secrets into `.env` File for React
+      - name: Inject AWS Secrets into .env File
+        run: |
+          echo "REACT_APP_AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "REACT_APP_AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "REACT_APP_AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "REACT_APP_AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          cat .env  # Debugging: Print the .env file
+
+      # ✅ Build React App with Environment Variables
       - name: Build Project
         env:
           REACT_APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           REACT_APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           REACT_APP_AWS_REGION: ${{ secrets.AWS_REGION }}
           REACT_APP_AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-        run: CI=false npm run build
+          AWS_SDK_LOAD_CONFIG: 1  # ✅ Ensures AWS SDK loads credentials correctly
+        run: CI=false npm run build  # Disables CI warnings during build
 
-      # ✅ Debug Step 2: Ensure React Build contains AWS credentials
+      # ✅ Verify if Environment Variables Exist in the Build
       - name: Verify Environment Variables in Build
         run: cat build/static/js/*.js | grep -E 'REACT_APP_AWS_ACCESS_KEY_ID|REACT_APP_AWS_SECRET_ACCESS_KEY|REACT_APP_AWS_REGION|REACT_APP_AWS_BUCKET_NAME' || echo "❌ AWS env variables not found in build!"
 
-      # ✅ Deploy files to AWS S3
+      # ✅ Deploy to AWS S3
       - name: Deploy to AWS S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-        run: |
-          aws s3 sync ./build s3://$AWS_BUCKET_NAME --region $AWS_REGION --delete
+          AWS_SDK_LOAD_CONFIG: 1  # ✅ Ensures AWS SDK loads credentials correctly
+        run: aws s3 sync ./build s3://$AWS_BUCKET_NAME --region $AWS_REGION --delete
