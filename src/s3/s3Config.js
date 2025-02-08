@@ -7,7 +7,7 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION,
 });
 
-const BUCKET_NAME = process.env.AWS_BUCKET_NAME;
+const BUCKET_NAME = process.env.AWS_BUCKET_NAME || "newswebsite-uploads";
 
 if (!BUCKET_NAME) {
   throw new Error("AWS_BUCKET_NAME is not defined!");
