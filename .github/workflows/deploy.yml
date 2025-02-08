@@ -24,10 +24,28 @@ jobs:
       - name: Install AWS SDK (v2)
         run: npm install aws-sdk
 
-
       - name: Build Project
         run: CI=false npm run build  # Disables CI warnings during build
 
+      # ✅ Debugging Step 1: Check if AWS secrets are available
+      - name: Debug AWS Secrets
+        run: |
+          echo "Checking AWS Secrets..."
+          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}"
+          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}"
+          echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
+          echo "AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}"
+
+      # ✅ Debugging Step 2: Test AWS CLI authentication
+      - name: Test AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws sts get-caller-identity
+
+      # ✅ Ensure AWS CLI is installed & updated if needed
       - name: Check AWS CLI Version
         run: aws --version || echo "AWS CLI not found"
 
@@ -42,11 +60,20 @@ jobs:
             echo "AWS CLI is already installed"
           fi
 
+      # ✅ Manually Configure AWS Credentials to Ensure Authentication Works
+      - name: Configure AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
+      # ✅ Deploy files to AWS S3
       - name: Deploy to AWS S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_SDK_LOAD_CONFIG: 1  # Ensures AWS SDK loads credentials correctly
         run: |
           aws s3 sync ./build s3://$AWS_BUCKET_NAME --region $AWS_REGION --delete
