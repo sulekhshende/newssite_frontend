@@ -43,16 +43,25 @@ jobs:
         run: |
           CI=false npm run build
 
-      # ✅ Step 6: Configure AWS CLI with `AWS_SDK_LOAD_CONFIG=1`
+      # ✅ Step 6: Configure AWS Credentials (Ensure AWS_SDK_LOAD_CONFIG=1)
       - name: Configure AWS Credentials
         run: |
           mkdir -p ~/.aws
+          
+          # Manually set credentials
           echo "[default]" > ~/.aws/credentials
           echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
           echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+
+          # Manually set config
           echo "[default]" > ~/.aws/config
           echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
           echo "output=json" >> ~/.aws/config
+
+          # Ensure AWS CLI uses these credentials
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile default
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile default
+          aws configure set region ${{ secrets.AWS_REGION }} --profile default
         env:
           AWS_SDK_LOAD_CONFIG: 1  # Ensures SDK loads credentials
 
@@ -61,10 +70,13 @@ jobs:
         run: |
           echo "Testing AWS credentials..."
           aws sts get-caller-identity
+        env:
+          AWS_SDK_LOAD_CONFIG: 1  # Ensures SDK loads credentials
 
       # ✅ Step 8: Deploy Build to AWS S3
       - name: Deploy to AWS S3
         env:
           AWS_SDK_LOAD_CONFIG: 1  # Ensures SDK loads credentials
         run: |
+          echo "Uploading build to S3..."
           aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
