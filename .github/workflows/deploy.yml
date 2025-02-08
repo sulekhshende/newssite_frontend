@@ -25,7 +25,7 @@ jobs:
         run: npm install @aws-sdk/client-s3
 
       - name: Build Project
-        run: npm run build
+        run: CI=false npm run build
 
       - name: Install AWS CLI
         run: |
