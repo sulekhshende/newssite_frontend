@@ -24,7 +24,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # ✅ Step 4: Inject AWS Secrets into `.env` File
+      # ✅ Step 4: Inject AWS Secrets into `.env` File (for frontend)
       - name: Inject AWS Secrets into .env File
         run: |
           echo "REACT_APP_AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
@@ -33,7 +33,7 @@ jobs:
           echo "REACT_APP_AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
           cat .env  # Debugging: Print the .env file
 
-      # ✅ Step 5: Build Project (Ensuring .env Variables Are Available)
+      # ✅ Step 5: Build Project
       - name: Build Project
         env:
           REACT_APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -43,29 +43,15 @@ jobs:
         run: |
           CI=false npm run build
 
-      # ✅ Step 6: Configure AWS Credentials (Ensure AWS_SDK_LOAD_CONFIG=1)
+      # ✅ Step 6: Configure AWS Credentials (Official GitHub Action)
       - name: Configure AWS Credentials
-        run: |
-          mkdir -p ~/.aws
-          
-          # Manually set credentials
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-          # Manually set config
-          echo "[default]" > ~/.aws/config
-          echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
-          echo "output=json" >> ~/.aws/config
-
-          # Ensure AWS CLI uses these credentials
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile default
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile default
-          aws configure set region ${{ secrets.AWS_REGION }} --profile default
-        env:
-          AWS_SDK_LOAD_CONFIG: 1  # Ensures SDK loads credentials
-
-      # ✅ Step 7: Test AWS Credentials
+      # ✅ Step 7: Verify AWS Credentials (Debugging Step)
       - name: Debug AWS Credentials
         run: |
           echo "Testing AWS credentials..."
