@@ -27,7 +27,7 @@ jobs:
       - name: Build Project
         run: CI=false npm run build  # Disables CI warnings during build
 
-      # ✅ Debugging Step 1: Check if AWS secrets are available
+      # ✅ Debugging Step: Check if AWS secrets are available
       - name: Debug AWS Secrets
         run: |
           echo "Checking AWS Secrets..."
@@ -36,7 +36,7 @@ jobs:
           echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
           echo "AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}"
 
-      # ✅ Debugging Step 2: Test AWS CLI authentication
+      # ✅ Test AWS Credentials
       - name: Test AWS Credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -60,20 +60,28 @@ jobs:
             echo "AWS CLI is already installed"
           fi
 
-      # ✅ Manually Configure AWS Credentials to Ensure Authentication Works
+      # Manually Configure AWS Credentials
       - name: Configure AWS Credentials
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region ${{ secrets.AWS_REGION }}
 
-      # ✅ Deploy files to AWS S3
+      # Set up environment variables for React (direct credentials)
+      - name: Set up React environment variables
+        run: |
+          echo "REACT_APP_AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "REACT_APP_AWS_REGION=${{ secrets.AWS_REGION }}" >> $GITHUB_ENV
+          echo "REACT_APP_AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> $GITHUB_ENV
+
+      # Deploy files to AWS S3
       - name: Deploy to AWS S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-          AWS_SDK_LOAD_CONFIG: 1  # Ensures AWS SDK loads credentials correctly
+          AWS_SDK_LOAD_CONFIG: 1
         run: |
           aws s3 sync ./build s3://$AWS_BUCKET_NAME --region $AWS_REGION --delete
