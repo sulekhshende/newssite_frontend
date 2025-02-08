@@ -504,7 +504,7 @@ export default function AddNews({ setShowNavbar }: AddNewsProps) {
       await Promise.all(promises);
       alert("Files uploaded successfully!");
     } catch (err) {
-      alert("Error uploading files: " + err.message);
+      alert("Error uploading files: " + err);
     }
   };
 
@@ -527,7 +527,7 @@ export default function AddNews({ setShowNavbar }: AddNewsProps) {
   }
 
   function postTags(newsid: number) {
-    const endpoints = values.tags.map(() => 'http://localhost:7700/api/news_tags/');
+    const endpoints = values.tags.map(() => 'https://boltnews365.zapto.org/api/news_tags/');
     const bodys = values.tags.map(tag => ({ news_id: newsid, tag_id: tag.id }));
 
     Promise.all(endpoints.map((endpoint, index) => userRequest.post(endpoint, bodys[index])))
