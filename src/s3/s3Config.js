@@ -1,11 +1,6 @@
 import AWS from 'aws-sdk';
 
-console.log("AWS SDK Credentials Check:");
-console.log("Access Key:", process.env.REACT_APP_AWS_ACCESS_KEY_ID);
-console.log("Secret Key:", process.env.REACT_APP_AWS_SECRET_ACCESS_KEY ? "Exists" : "Missing");
-console.log("Region:", process.env.REACT_APP_AWS_REGION);
-console.log("Bucket Name:", process.env.REACT_APP_AWS_BUCKET_NAME);
-
+// Load AWS credentials from environment variables
 const s3 = new AWS.S3({
   accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID || '',
   secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || '',
@@ -13,25 +8,26 @@ const s3 = new AWS.S3({
   signatureVersion: 'v4',
 });
 
+// Ensure the bucket name is set
+const BUCKET_NAME = process.env.REACT_APP_AWS_BUCKET_NAME || 'newswebsite-uploads';
+
 export const uploadFileToS3 = async (file) => {
-  if (!process.env.REACT_APP_AWS_ACCESS_KEY_ID || !process.env.REACT_APP_AWS_SECRET_ACCESS_KEY) {
-    throw new Error("🚨 AWS credentials are missing!");
+  if (!BUCKET_NAME) {
+    throw new Error("AWS_BUCKET_NAME is not set");
   }
 
   const params = {
-    Bucket: process.env.REACT_APP_AWS_BUCKET_NAME,
+    Bucket: BUCKET_NAME,
     Key: `uploads/${Date.now()}_${file.name}`,
     Body: file,
     ContentType: file.type,
   };
 
   try {
-    console.log("🟢 Uploading file to S3...");
     const { Location } = await s3.upload(params).promise();
-    console.log("✅ File uploaded successfully:", Location);
-    return Location;
+    return Location; // Returns the uploaded file's URL
   } catch (error) {
-    console.error("❌ Error uploading to S3:", error);
+    console.error("Error uploading to S3: ", error);
     throw error;
   }
 };

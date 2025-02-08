@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: Deploy React App
 
 on:
   push:
@@ -10,73 +10,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ✅ Step 1: Checkout the Repository
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
+      # ✅ Step 2: Set up Node.js
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 18  
+          node-version: 16
 
+      # ✅ Step 3: Install Dependencies
       - name: Install Dependencies
         run: npm install
 
-      - name: Install AWS SDK (v2)
-        run: npm install aws-sdk
-
-      # ✅ Debug Step 1: Check if AWS secrets are available
-      - name: Debug AWS Secrets
+      # ✅ Step 4: Inject AWS Secrets into `.env` File
+      - name: Inject AWS Secrets into .env File
         run: |
-          echo "Checking AWS Secrets..."
-          echo "AWS_ACCESS_KEY_ID is set: ${{ secrets.AWS_ACCESS_KEY_ID != '' }}"
-          echo "AWS_SECRET_ACCESS_KEY is set: ${{ secrets.AWS_SECRET_ACCESS_KEY != '' }}"
-          echo "AWS_REGION: ${{ secrets.AWS_REGION }}"
-          echo "AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}"
+          echo "REACT_APP_AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "REACT_APP_AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "REACT_APP_AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "REACT_APP_AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}" >> .env
+          cat .env  # Debugging: Print the .env file
 
-      # ✅ Ensure AWS CLI is installed & updated if needed
-      - name: Check AWS CLI Version
-        run: aws --version || echo "AWS CLI not found"
-
-      - name: Update AWS CLI (if needed)
-        run: |
-          if ! aws --version | grep -q "aws-cli/2"; then
-            echo "Updating AWS CLI..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install --update
-          else
-            echo "AWS CLI is already installed"
-          fi
-
-      # ✅ Force AWS Credentials to be used
-      - name: Force AWS Credentials
-        run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-          echo "[default]" > ~/.aws/config
-          echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
-
-      # ✅ Set Environment Variables for React Build
+      # ✅ Step 5: Build Project (Ensuring .env Variables Are Available)
       - name: Build Project
         env:
           REACT_APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           REACT_APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           REACT_APP_AWS_REGION: ${{ secrets.AWS_REGION }}
           REACT_APP_AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-        run: CI=false npm run build
-
-      # ✅ Debug Step 2: Ensure React Build contains AWS credentials
-      - name: Verify Environment Variables in Build
-        run: cat build/static/js/*.js | grep -E 'REACT_APP_AWS_ACCESS_KEY_ID|REACT_APP_AWS_SECRET_ACCESS_KEY|REACT_APP_AWS_REGION|REACT_APP_AWS_BUCKET_NAME' || echo "❌ AWS env variables not found in build!"
-
-      # ✅ Deploy files to AWS S3
-      - name: Deploy to AWS S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
         run: |
-          aws s3 sync ./build s3://$AWS_BUCKET_NAME --region $AWS_REGION --delete
+          CI=false npm run build
+
+      # ✅ Step 6: Configure AWS CLI
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # ✅ Step 7: Set AWS Config (Fix Missing Config Set = 1)
+      - name: Set AWS Config
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+          aws configure set output json
+          aws configure set cli_follow_urlparam false
+          aws configure set cli_auto_prompt on-partial
+          aws configure set cli_pager ''
+
+      # ✅ Step 8: Deploy Build to AWS S3 Bucket
+      - name: Deploy to AWS S3
+        run: |
+          aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
