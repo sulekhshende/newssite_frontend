@@ -13,14 +13,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Debug GitHub Secrets
+        run: |
+          echo "AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'"
+          echo "AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'"
+          echo "AWS_REGION: '${{ secrets.AWS_REGION }}'"
+          echo "AWS_BUCKET_NAME: '${{ secrets.AWS_BUCKET_NAME }}'"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          mask-aws-account-id: false
-          role-skip-session-tagging: true
 
       - name: Verify AWS Credentials
         run: |
@@ -42,5 +47,8 @@ jobs:
 
       - name: Deploy to AWS S3
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_SDK_LOAD_CONFIG: 1
         run: aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
