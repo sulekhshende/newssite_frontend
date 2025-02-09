@@ -50,5 +50,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
           AWS_SDK_LOAD_CONFIG: 1
-        run: aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+        run: |
+          echo "🔍 Verifying AWS Credentials..."
+          aws sts get-caller-identity
+          echo "🚀 Deploying to S3..."
+          aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+
