@@ -1,9 +1,9 @@
-name: Deploy React App
+name: Deploy to AWS S3
 
 on:
   push:
     branches:
-      - main
+      - main  # Change this to your deployment branch if needed
 
 jobs:
   deploy:
@@ -11,14 +11,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Debug GitHub Secrets
-        run: |
-          echo "AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'"
-          echo "AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'"
-          echo "AWS_REGION: '${{ secrets.AWS_REGION }}'"
-          echo "AWS_BUCKET_NAME: '${{ secrets.AWS_BUCKET_NAME }}'"
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -28,44 +21,20 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Verify AWS Credentials
-        run: |
-          aws sts get-caller-identity || echo "❌ AWS credentials not found!"
-          aws configure list
-          cat ~/.aws/credentials || echo "❌ ~/.aws/credentials file missing!"
-
-      - name: Configure AWS Profile (If Needed)
-        run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
-          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
-          echo "[default]" > ~/.aws/config
-          echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
+        run: aws sts get-caller-identity || echo "❌ AWS credentials not found!"
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Build Project
         env:
-          REACT_APP_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          REACT_APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           REACT_APP_AWS_REGION: ${{ secrets.AWS_REGION }}
           REACT_APP_AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
         run: |
           CI=false npm run build
 
       - name: Deploy to AWS S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-          AWS_SDK_LOAD_CONFIG: 1
-        run: |
-          echo "🔍 Verifying AWS Credentials..."
-          aws sts get-caller-identity
-          
-          echo "🚀 Deploying to S3..."
-          aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete \
-            --region $AWS_REGION \
-            --exact-timestamps
+        run: aws s3 sync ./dist s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+
+      - name: Clean Up Credentials (Extra Security)
+        run: rm -rf ~/.aws/credentials
