@@ -33,6 +33,15 @@ jobs:
           aws configure list
           cat ~/.aws/credentials || echo "❌ ~/.aws/credentials file missing!"
 
+      - name: Configure AWS Profile (If Needed)
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "[default]" > ~/.aws/config
+          echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
+
       - name: Install Dependencies
         run: npm ci
 
@@ -55,6 +64,8 @@ jobs:
         run: |
           echo "🔍 Verifying AWS Credentials..."
           aws sts get-caller-identity
+          
           echo "🚀 Deploying to S3..."
-          aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
-
+          aws s3 sync build/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete \
+            --region $AWS_REGION \
+            --exact-timestamps
