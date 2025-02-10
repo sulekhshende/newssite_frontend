@@ -154,7 +154,7 @@ function Registration() {
                                 sx={{ my:1, color: 'red', display: 'block' }}
                                 component={Link} to='/login'
                             >
-                               Already Have an account? Sign In
+                               Already a Reporter? Sign In
                             </Button>
                         </Grid>
                     </Grid>
