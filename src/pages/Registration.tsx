@@ -166,6 +166,130 @@
 // }
 // export default Registration;
 
+// import { useState } from "react";
+// import Avatar from "@mui/material/Avatar";
+// import Button from "@mui/material/Button";
+// import TextField from "@mui/material/TextField";   
+// import Grid from "@mui/material/Grid";
+// import Box from "@mui/material/Box";
+// import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+// import Typography from "@mui/material/Typography";
+// import Container from "@mui/material/Container";
+// import { Link } from 'react-router-dom';
+// import { useForm } from "react-hook-form";
+// import { yupResolver } from "@hookform/resolvers/yup";
+// import * as Yup from 'yup';
+// import Popup from "../components/Popup";
+// import { publicRequest } from './../redux/requestMethod';
+
+// const validationSchema = Yup.object().shape({
+//     username: Yup.string()
+//         .required('Username is required')
+//         .min(6, 'Username must be at least 6 characters')
+//         .max(20, 'Username must not exceed 20 characters'),
+//     email: Yup.string()
+//         .required('Email is required')
+//         .email('Email is invalid'),
+//     password: Yup.string()
+//         .required('Password is required')
+//         .min(6, 'Password must be at least 6 characters')
+//         .max(40, 'Password must not exceed 10 characters'),
+//     city: Yup.string()
+//         .required('City is required')
+//         .min(2, 'City must be at least 2 characters')
+//         .max(15, 'City must not exceed 15 characters')
+// });
+
+// function Registration() {
+//     const [buttonPopup, setButtonPopup] = useState(false);
+//     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+//     const { register, handleSubmit, formState: { errors } } = useForm({
+//         resolver: yupResolver(validationSchema),
+//     });
+
+//     // Handle file selection
+//     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//         if (e.target.files && e.target.files.length > 0) {
+//             setSelectedFile(e.target.files[0]);
+//         }
+//     };
+
+//     const submitForm = async (data: any) => {
+//         if (!selectedFile) {
+//             alert("Please select a PDF file.");
+//             return;
+//         }
+
+//         const formData = new FormData();
+//         formData.append("username", data.username);
+//         formData.append("email", data.email);
+//         formData.append("password", data.password);
+//         formData.append("city", data.city);
+//         formData.append("file", selectedFile); // Attach PDF file
+
+//         try {
+//             const res = await publicRequest.post("/auth/register", formData, {
+//                 headers: { "Content-Type": "multipart/form-data" },
+//             });
+
+//             if (res.statusText === "Created") {
+//                 setButtonPopup(true);
+//             } else {
+//                 console.log("Something went wrong");
+//             }
+//         } catch (error) {
+//             console.error("Error:", error);
+//         }
+//     };
+
+//     return (
+//         <Container component="main" maxWidth="xs">
+//             <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
+//                 <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+//                     <LockOutlinedIcon />
+//                 </Avatar>
+//                 <Typography component="h1" variant="h5">
+//                     Details
+//                 </Typography>
+
+//                 <Popup trigger={buttonPopup} setTrigger={setButtonPopup} />
+
+//                 <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit(submitForm)}>
+//                     <TextField fullWidth label="User Name" {...register("username")} />
+//                     <p>{errors.username?.message}</p>
+
+//                     <TextField fullWidth label="Email Address" {...register("email")} type="email" />
+//                     <p>{errors.email?.message}</p>
+
+//                     <TextField fullWidth label="Password" {...register("password")} type="password" />
+//                     <p>{errors.password?.message}</p>
+
+//                     <TextField fullWidth label="City" {...register("city")} />
+//                     <p>{errors.city?.message}</p>
+
+//                     {/* File Input for PDF */}
+//                     <input type="file" accept="application/pdf" onChange={handleFileChange} required />
+                    
+//                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+//                         Apply
+//                     </Button>
+
+//                     <Grid container>
+//                         <Grid item xs>
+//                             <Button sx={{ my:1, color: 'red', display: 'block' }} component={Link} to='/login'>
+//                                 Already a Reporter? Sign In
+//                             </Button>
+//                         </Grid>
+//                     </Grid>
+//                 </Box>
+//             </Box>
+//         </Container>
+//     );
+// }
+
+// export default Registration;
+
 import { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
@@ -204,7 +328,7 @@ function Registration() {
     const [buttonPopup, setButtonPopup] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
     });
 
@@ -243,6 +367,13 @@ function Registration() {
         }
     };
 
+    // Function to reset form and close popup
+    const handlePopupClose = () => {
+        setButtonPopup(false);
+        reset(); // Reset form fields
+        setSelectedFile(null); // Clear selected file
+    };
+
     return (
         <Container component="main" maxWidth="xs">
             <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -253,7 +384,7 @@ function Registration() {
                     Details
                 </Typography>
 
-                <Popup trigger={buttonPopup} setTrigger={setButtonPopup} />
+                <Popup trigger={buttonPopup} setTrigger={handlePopupClose} />
 
                 <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit(submitForm)}>
                     <TextField fullWidth label="User Name" {...register("username")} />
