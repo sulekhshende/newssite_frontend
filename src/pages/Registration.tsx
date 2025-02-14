@@ -309,13 +309,6 @@ import { publicRequest } from "./../redux/requestMethod";
 
 const GOOGLE_CLIENT_ID = "595337100847-c6eir6a6knseqkucgnd9l4depjm0j7o6.apps.googleusercontent.com";
 
-interface FormData {
-    username: string;
-    email: string;
-    password: string;
-    city: string;
-}
-
 const validationSchema = Yup.object().shape({
     username: Yup.string().required("Username is required").min(6).max(20),
     email: Yup.string().required("Email is required").email("Email is invalid"),
@@ -324,10 +317,11 @@ const validationSchema = Yup.object().shape({
 });
 
 function Registration() {
-    const [buttonPopup, setButtonPopup] = useState<boolean>(false);
+    const [buttonPopup, setButtonPopup] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [googleEmail, setGoogleEmail] = useState("");
 
-    const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
     });
 
@@ -337,7 +331,19 @@ function Registration() {
         }
     };
 
-    const submitForm = async (data: FormData) => {
+    const handleGoogleSuccess = async (response: CredentialResponse) => {
+        if (response.credential) {
+            try {
+                const res = await publicRequest.post("/auth/google", { token: response.credential });
+                setGoogleEmail(res.data.email);
+                setValue("email", res.data.email); // Autofill email field
+            } catch (error) {
+                console.error("Google OAuth Error:", error);
+            }
+        }
+    };
+
+    const submitForm = async (data: any) => {
         if (!selectedFile) {
             alert("Please select a PDF file.");
             return;
@@ -345,7 +351,7 @@ function Registration() {
 
         const formData = new FormData();
         formData.append("username", data.username);
-        formData.append("email", data.email);
+        formData.append("email", googleEmail || data.email);
         formData.append("password", data.password);
         formData.append("city", data.city);
         formData.append("file", selectedFile);
@@ -357,19 +363,6 @@ function Registration() {
             if (res.status === 201) setButtonPopup(true);
         } catch (error) {
             console.error("Error:", error);
-        }
-    };
-
-    const handleGoogleSuccess = async (response: CredentialResponse) => {
-        try {
-            if (response.credential) {
-                const res = await publicRequest.post("/auth/google/callback", {
-                    token: response.credential,
-                });
-                console.log("Google OAuth Success:", res.data);
-            }
-        } catch (error) {
-            console.error("Google OAuth Error:", error);
         }
     };
 
@@ -385,7 +378,7 @@ function Registration() {
                     <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit(submitForm)}>
                         <TextField fullWidth label="User Name" {...register("username")} />
                         <p>{errors.username?.message}</p>
-                        <TextField fullWidth label="Email Address" {...register("email")} type="email" />
+                        <TextField fullWidth label="Email Address" {...register("email")} value={googleEmail} disabled={!!googleEmail} />
                         <p>{errors.email?.message}</p>
                         <TextField fullWidth label="Password" {...register("password")} type="password" />
                         <p>{errors.password?.message}</p>
