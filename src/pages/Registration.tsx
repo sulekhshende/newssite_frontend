@@ -250,7 +250,7 @@ function Registration() {
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Register
+                    Details
                 </Typography>
 
                 <Popup trigger={buttonPopup} setTrigger={setButtonPopup} />
@@ -272,7 +272,7 @@ function Registration() {
                     <input type="file" accept="application/pdf" onChange={handleFileChange} required />
                     
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Sign Up
+                        Apply
                     </Button>
 
                     <Grid container>

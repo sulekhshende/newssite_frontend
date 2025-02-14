@@ -126,7 +126,7 @@ function Login(){
           </Button>
           <Grid container>
             <Grid item>
-             <Button component={Link} to='/registration'>"Want to Apply for Reporter Job? Apply here"</Button>
+             <Button component={Link} to='/registration'>"Want to Apply for Reporter Job? Click to Apply here"</Button>
             </Grid>
           </Grid>
         </Box>
