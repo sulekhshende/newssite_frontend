@@ -251,7 +251,7 @@ const Header = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-                <MenuItem key="Work" onClick={handleCloseUserMenu} component={Link} to='login'>
+                <MenuItem key="Work" onClick={handleCloseUserMenu} component={Link} to='registration'>
                   <Typography textAlign="center">Work for us</Typography>
                 </MenuItem>
             </Menu>
