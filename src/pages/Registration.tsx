@@ -384,8 +384,8 @@ function Registration() {
                     Details
                 </Typography>
 
-                <Popup trigger={buttonPopup} setTrigger={handlePopupClose} />
-
+                {/* <Popup trigger={buttonPopup} setTrigger={handlePopupClose} /> */}
+                <Popup trigger={buttonPopup} setTrigger={setButtonPopup} onClose={handlePopupClose} />
                 <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSubmit(submitForm)}>
                     <TextField fullWidth label="User Name" {...register("username")} />
                     <p>{errors.username?.message}</p>
