@@ -327,6 +327,7 @@ const validationSchema = Yup.object().shape({
 function Registration() {
     const [buttonPopup, setButtonPopup] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema),
@@ -344,7 +345,7 @@ function Registration() {
             alert("Please select a PDF file.");
             return;
         }
-
+        setIsButtonDisabled(true);
         const formData = new FormData();
         formData.append("username", data.username);
         formData.append("email", data.email);
@@ -364,6 +365,9 @@ function Registration() {
             }
         } catch (error) {
             console.error("Error:", error);
+        } finally {
+            // Re-enable the button after 5 seconds
+            setTimeout(() => setIsButtonDisabled(false), 5000);
         }
     };
 
@@ -402,8 +406,13 @@ function Registration() {
                     {/* File Input for PDF */}
                     <input type="file" accept="application/pdf" onChange={handleFileChange} required />
                     
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Apply
+                    <Button 
+                        type="submit" 
+                        fullWidth variant="contained" 
+                        sx={{ mt: 3, mb: 2 }}
+                        disabled={isButtonDisabled} 
+                    >
+                        {isButtonDisabled ? "Processing..." : "Apply"}
                     </Button>
 
                     <Grid container>
